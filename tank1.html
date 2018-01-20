@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<style media="screen">
+  *{
+    margin: 0;
+    padding: 0;
+  }
+  .box{
+    position: relative;
+  }
+  #tank{
+    width: 100px;
+    height: 100px;
+    background-color: #ccc;
+    position: absolute;
+    transition: all .2s;
+  }
+</style>
+
+<body>
+  <div class="box">
+    <div id="tank"></div>
+  </div>
+</body>
+<script src="./jquery-3.2.1.min.js"></script>
+<script>
+var windowWidth = $(window).width() / 2 - $("#tank").width()/ 2;
+$("body,.box").height($(window).height())
+$("#tank").css({"left":windowWidth,"bottom":"0"})
+var tank = {
+  tankTop : 0,
+  tankLeft : 0,
+  tankRight : 0,
+  tankBottom : 0,
+}
+var tank2 = {
+  tankTop : 0,
+  tankLeft : 0,
+  tankRight : 0,
+  tankBottom : 0,
+}
+  $(window).on('keydown',function(event){
+      if (event.keyCode == 38) {
+        //上
+        tank2.tankTop = $("#tank").offset().top;
+        tank.tankTop = tank2.tankTop;
+        tank.tankTop -=20;
+        $("#tank").css("top",tank.tankTop);
+      }else if (event.keyCode == 40) {
+        //下
+        var strBottom = $("#tank").css("bottom");
+        tank2.tankBottom = parseInt(strBottom.substring(0,strBottom.length-2));
+        tank.tankBottom  = tank2.tankBottom ;
+        console.log(tank.tankBottom);
+        tank.tankBottom -=20;
+        console.log(tank.tankBottom);
+        $("#tank").css("bottom",tank.tankBottom);
+        console.log($("#tank").css("bottom"));
+      }else if (event.keyCode == 37) {
+        //左
+        tank2.tankLeft= $("#tank").offset().left;
+        tank.tankLeft = tank2.tankLeft;
+        tank.tankLeft -=20;
+
+        $("#tank").css("left",tank.tankLeft);
+      }else if (event.keyCode == 39) {
+        //右
+        var strRight = $("#tank").css("right");
+        tank2.tankRight = parseInt(strRight.substring(0,strRight.length-2));
+        tank.tankRight = tank2.tankRight;
+        tank.tankRight -=20;
+
+        $("#tank").css("right",tank.tankRight);
+      }
+  })
+</script>
+</html>
