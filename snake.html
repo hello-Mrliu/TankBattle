@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>贪吃蛇</title>
+    <style lang="">
+        #canvas{
+            box-shadow: 0 5px 20px black;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -250px;
+            margin-left: -400px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="500">
+        Your browser does not support the Canvas API. Please upgrade your browser.
+    </canvas>
+</body>
+<script type="text/javascript">
+  var canvas = document.getElementById('canvas');
+  var context = canvas.getContext('2d');
+   
+   // 随机生成方块
+   // 这是一个构造函数
+   function Rect(x,y,w,h,color){
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.color = color;
+   }
+   // 画方块的方法，添加原型方法
+   Rect.prototype.draw = function(){
+       context.beginPath();
+       context.fillStyle = this.color;
+       context.rect(this.x, this.y, this.w, this.h);
+       context.fill();
+       context.stroke();
+   }
+
+
+    // 构造对象蛇
+    function Snake(){
+        // 定义一个空数组，存放组成整蛇的方块对象
+        var snakeArray = [];
+        //画出四个方块，设置颜色
+        for (var i = 0; i < 4; i++) {
+            var rect = new Rect(i * 20, 0, 20, 20, "#A3A3A3");
+            //之所以用splice（往前加）而不是用push（往后加），是为了让蛇头出现在数组第一个位置
+            snakeArray.splice(0, 0, rect);
+        }
+        // 把数组的第一个作为蛇头，设置为红色
+        var head = snakeArray[0];
+        head.color = 'red';
+
+        // 此处将两个后面常用的东西定为属性， 方便后面调用
+        this.head = snakeArray[0];
+        this.snakeArray = snakeArray;
+
+        // 给定初始位置向右（同keyCode 箭头）
+        this.direction = 39;
+
+    }
+
+    // 画蛇的方法
+    Snake.prototype.draw = function(){
+        for (var i = 0; i < this.snakeArray.length; i++) {
+            //console.log(this);  this指向的是蛇头
+            this.snakeArray[i].draw();
+        }
+    }
+  
+   
+
+    // 蛇移动的方法
+    Snake.prototype.move = function(){
+        // 此处是核心部分
+        //1.画一个灰色方块，位置与蛇头重叠
+        //2. 讲这个方块插兜啊数组中蛇头后面的一个位置
+        //3. 砍去末尾的方块
+        //4. 将蛇头向设定方向移动一格
+        var rect = new Rect(this.head.x,this.head.y, this.head.w, this.head.h, "yellow");
+        this.snakeArray.splice(1, 0, rect);
+  
+        // 判断是否吃到食物，isEat 判定函数写在最后了
+        // 吃到 则 食物重新设置，不看去最后一节，即蛇变长
+        // 没迟到则末尾砍掉一节，即蛇长度不变、
+        if (isEat()){
+            food = new getRandomFood();
+        }else{
+            this.snakeArray.pop(); // 删除数组的最后一个元素
+        }
+
+        // (翻译过来的意思： 不断往数组第一个后添加方块， 如果是吃到了， 这个方块就保留，如果没吃到，就删除最后一个， 给你一种向前走了的感觉)
+
+       //设置蛇头的运动方向，37 左，38 上，39 右， 40 下
+       console.log(this);
+       
+       switch (this.direction) {
+         case 37:
+               this.head.x -= this.head.w
+               break;
+         case 38:
+               this.head.y -= this.head.h
+               break;
+         case 39:
+               this.head.x += this.head.w
+               break;
+         case 40:
+               this.head.y += this.head.h
+               break;
+         default:
+               break; 
+           
+       }
+
+    //    gameover判定（1.撞墙了 2.撞自己）
+    //1.撞墙
+    if (this.head.x >= canvas.width || this.head.x < 0 || this.head.y >= canvas.height || this.head.y < 0){
+        // 清除定时器
+        clearInterval(timer);
+        alert("游戏结束");
+    }
+    //2.撞自己
+    for (var i = 1; i < this.snakeArray.length; i++){
+        if (this.snakeArray[i].x == this.head.x && this.snakeArray[i].y == this.head.y){
+            clearInterval(timer);
+            alert("游戏结束");
+        }
+    }
+
+
+    }
+
+    // 键盘事件， 其中的 if  判断是为了让蛇不能掉头
+    document.onkeydown = function (e) {
+        var ev = e || window.event;
+        switch (ev.keyCode){
+            case 37:
+                {
+                    if (snake.direction !== 39) {
+                        snake.direction = 37;
+                    }
+                    break;
+                }
+            case 38:
+                {
+                    if (snake.direction !== 40) {
+                        snake.direction = 38;
+                    }
+                    break;
+                }
+            case 39:
+                {
+                    if (snake.direction !== 37) {
+                        snake.direction = 39;
+                    }
+                    break;
+                }
+            case 40:
+                {
+                    if (snake.direction !== 38) {
+                        snake.direction = 40;
+                    }
+                    break;
+                }
+        }
+        ev.preventDefault();
+    }
+
+
+     //画出初始的蛇
+    var snake = new Snake()
+    snake.draw();
+    //画出初始的食物
+    var food = new getRandomFood()
+    //定时器
+    var timer = setInterval(function () {
+        context.clearRect(0, 0, canvas.width, canvas.height); // 清除画板
+        food.draw();
+        snake.move();
+        snake.draw();
+    }, 200) // 这里的定时器控制 蛇的移动速度
+
+
+
+
+
+
+
+    //随机函数，获得[min,max]范围的值
+    function getNumberInRange(min, max) {
+        var range = max - min;
+        var r = Math.random();
+        return Math.round(r * range + min)
+    }
+    // 构造食物对象
+    function getRandomFood(){
+        // 判断食物是否出现在蛇身上，如果是重合，则重新生成一遍
+        var isOnSnake = true;
+        //设置食物出现的随机位置
+        while (isOnSnake) {
+            //执行后先将判定条件设置为false，如果判定不重合，则不会再执行下列语句
+            isOnSnake = false;
+            var indexX = getNumberInRange(0, canvas.width / 20 - 1);
+            var indexY = getNumberInRange(0, canvas.height / 20 - 1);
+            var rect = new Rect(indexX * 20, indexY * 20, 20, 20, "orange");
+            for (var i = 0; i < snake.snakeArray.length; i++) {
+                if (snake.snakeArray[i].x == rect.x && snake.snakeArray[i].y == rect.y) {
+                    //如果判定重合，将其设置为true，使随机数重给
+                    isOnSnake = true;
+                    break;
+                }
+            }
+        }
+        //返回rect，使得实例化对象food有draw的方法
+        return rect;
+    }
+
+    //判定吃到食物，即蛇头坐标与食物坐标重合
+    function isEat() {
+        if (snake.head.x == food.x && snake.head.y == food.y) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    
+
+</script>
+</html>
